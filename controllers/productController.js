@@ -30,6 +30,20 @@ exports.listProducts = async (req, res) => {
     res.status(500).send("Server error");
   }
 };
+exports.getProduct = async (req, res) => {
+  const { id } = req.params;
+  try {
+
+    const product = await pool.query(
+      "SELECT * FROM products WHERE id = $1",
+      [id]
+    );
+    res.json({data:product.rows});
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server error");
+  }
+};
 
 // Edit an existing product
 exports.editProduct = async (req, res) => {

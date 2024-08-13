@@ -27,3 +27,15 @@ exports.ensureSeller = (req, res, next) => {
 
   next();
 };
+
+exports.ensureBuyer = (req, res, next) => {
+  // Now you can directly access the role from req.user
+  if (req.user.role !== "buyer") {
+    return res
+      .status(403)
+      .json({ msg: "Access denied. Only sellers can perform this action." });
+  }
+
+  next();
+};
+
