@@ -1,5 +1,6 @@
 'use client'
-import React, {useState, useEffect} from 'react'
+
+import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useRouter } from 'next/navigation'
 import Navbar from '../components/Navbar'
@@ -9,16 +10,20 @@ type Props = {}
 
 const Productform = (props: Props) => {
     const router = useRouter()
-    const token = localStorage.getItem('jwt')
-    if (token) {
-        // Decode JWT or fetch user info from API
-        // For simplicity, we'll just decode the JWT payload to get user info
-        const decodedToken = JSON.parse(atob(token.split('.')[1])); // Decode JWT payload
-        if(decodedToken.user.role!='seller'){
+    const [token, setToken] = useState<string | null>(null)
+
+    useEffect(() => {
+        const jwtToken = localStorage.getItem('jwt')
+        if (jwtToken) {
+            setToken(jwtToken)
+            const decodedToken = JSON.parse(atob(jwtToken.split('.')[1])); // Decode JWT payload
+            if (decodedToken.user.role !== 'seller') {
+                router.push('/')
+            }
+        } else {
             router.push('/')
-                    
         }
-    }
+    }, [router])
 
     const [formData, setFormData] = useState({
         name: '',
@@ -45,13 +50,17 @@ const Productform = (props: Props) => {
 
     const postData = async () => {
         try {
-            const response = await api.post('/products/create', formData,{
-                headers: {
-                    Authorization: `Bearer ${token}`, // Add the token in the Authorization header
-                },
-            })
-            router.push('/')
-            console.log(response)
+            if (token) {
+                const response = await api.post('/products/create', formData, {
+                    headers: {
+                        Authorization: `Bearer ${token}`, // Add the token in the Authorization header
+                    },
+                })
+                router.push('/')
+                console.log(response)
+            } else {
+                console.log('No token available')
+            }
         } catch (error) {
             console.log(error)
         }

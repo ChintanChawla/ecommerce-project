@@ -2,8 +2,10 @@ import axios from 'axios';
 import router from 'next/router'; // or import your routing module
 
 // Create an instance of axios
+
+console.log()
 const api = axios.create({
-    baseURL: 'http://localhost:3002/api', // Set your base URL
+    baseURL: process.env.NEXT_PUBLIC_BASE_URL, // Set your base URL
 });
 
 // Add a response interceptor
