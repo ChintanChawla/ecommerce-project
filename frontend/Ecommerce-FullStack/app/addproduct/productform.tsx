@@ -10,6 +10,16 @@ type Props = {}
 const Productform = (props: Props) => {
     const router = useRouter()
     const token = localStorage.getItem('jwt')
+    if (token) {
+        // Decode JWT or fetch user info from API
+        // For simplicity, we'll just decode the JWT payload to get user info
+        const decodedToken = JSON.parse(atob(token.split('.')[1])); // Decode JWT payload
+        if(decodedToken.user.role!='seller'){
+            router.push('/')
+                    
+        }
+    }
+
     const [formData, setFormData] = useState({
         name: '',
         description: '',
@@ -85,6 +95,7 @@ const Productform = (props: Props) => {
                             onChange={handlePriceChange}
                         />
                     </div>
+                    
                     <div>
                         <label htmlFor="description" className='font-medium'>Description</label>
                         <textarea 

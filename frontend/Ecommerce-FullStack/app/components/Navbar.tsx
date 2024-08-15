@@ -33,7 +33,11 @@ const Navbar = () => {
                 <ul className='py-5 px-1 text-neutral-600'>
                     <li className='hover:bg-gray-100 hover:text-neutral-900 px-5 py-2 cursor-pointer'>{user.name}</li>
                     <li onClick={handleSignOut} className='whitespace-nowrap hover:text-red-600 px-5 py-2 cursor-pointer'>SignOut</li>
-                    <li className='whitespace-nowrap hover:bg-gray-100 hover:text-neutral-900 px-5 py-2 cursor-pointer'><a href="/addproduct">Add Product</a></li>
+                    {user.role === 'seller' && (
+                    <li className='whitespace-nowrap hover:bg-gray-100 hover:text-neutral-900 px-5 py-2 cursor-pointer'>
+                        <a href="/addproduct">Add Product</a>
+                    </li>
+                )}
                 </ul>
             );
         }

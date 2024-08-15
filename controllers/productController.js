@@ -33,12 +33,10 @@ exports.listProducts = async (req, res) => {
 exports.getProduct = async (req, res) => {
   const { id } = req.params;
   try {
-
-    const product = await pool.query(
-      "SELECT * FROM products WHERE id = $1",
-      [id]
-    );
-    res.json({data:product.rows});
+    const product = await pool.query("SELECT * FROM products WHERE id = $1", [
+      id,
+    ]);
+    res.json({ data: product.rows });
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server error");
@@ -48,7 +46,7 @@ exports.getProduct = async (req, res) => {
 // Edit an existing product
 exports.editProduct = async (req, res) => {
   const { id } = req.params;
-  const { name, description, price, discount } = req.body;
+  const { name, description, price, discount,category } = req.body;
   const seller_id = req.user.id;
 
   try {
@@ -66,9 +64,9 @@ exports.editProduct = async (req, res) => {
 
     // Update the product
     const updatedProduct = await pool.query(
-      `UPDATE products SET name = $1, description = $2, price = $3, discount = $4, updated_at = NOW()
-       WHERE id = $5 RETURNING *`,
-      [name, description, price, discount, id]
+      `UPDATE products SET name = $1, description = $2, price = $3, discount = $4, category = $5, updated_at = NOW()
+       WHERE id = $6 RETURNING *`,
+      [name, description, price, discount,category, id]
     );
 
     res.json(updatedProduct.rows[0]);
@@ -81,6 +79,7 @@ exports.editProduct = async (req, res) => {
 // Delete a product
 exports.deleteProduct = async (req, res) => {
   const { id } = req.params;
+
   const seller_id = req.user.id;
 
   try {
@@ -123,6 +122,39 @@ exports.searchProducts = async (req, res) => {
     );
 
     res.json(products.rows);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server error");
+  }
+};
+
+exports.listSellerProducts = async (req, res) => {
+  console.log('test rew',req.user)
+  const seller_id = req.user.id;
+  try {
+    const products = await pool.query(
+      "SELECT id, name, description, price, discount,seller_id, category FROM products WHERE seller_id = $1",
+      [seller_id]
+    );
+    console.log('test',products)
+    res.json(products.rows);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server error");
+  }
+};
+
+
+
+
+
+exports.getProduct = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const product = await pool.query("SELECT * FROM products WHERE id = $1", [
+      id,
+    ]);
+    res.json({ data: product.rows });
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server error");

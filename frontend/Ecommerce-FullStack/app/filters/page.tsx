@@ -4,6 +4,7 @@ import Navbar from '../components/Navbar'
 import axios from 'axios'
 import Link from 'next/link'
 import Filter from './Filter'
+import api from '../utils/api'
 
 type Props = {}
 
@@ -22,15 +23,9 @@ const Page = (props: Props) => {
     useEffect(() => {
         const fetchdata = async () => {
             try{
-                const response = await axios.get('/api/filterproduct',{
+                const response = await api.get('/api/filterproduct',{
                     params:{
                         categories:selectedCategories,
-                        size:selectedSize,
-                        price:{
-                            min:price.min,
-                            max:price.max
-                        },
-                        colors: selectedHexValues
                     },
                     headers:{
                         'Content-Type':'application/json'
@@ -45,7 +40,7 @@ const Page = (props: Props) => {
             }
         };
         fetchdata()
-    }, [selectedCategories, selectedSize,selectedHexValues,price])
+    }, [selectedCategories,price])
 
   return (
     <div className='px-5 max-w-[1280px] mx-auto'>
@@ -74,9 +69,9 @@ const Page = (props: Props) => {
                     {response.map((product:any) => (
                         <div key={product.id}>
                             <Link href={`/dashboard/${product.id}`}>
-                                <div className='relative rounded-lg'>
+                                {/* <div className='relative rounded-lg'>
                                     <img src={product.images.split(',')[0]} className='w-[250px] h-[300px] object-cover object-top rounded-lg' alt="" />
-                                </div>
+                                </div> */}
                                 <div className='flex items-center justify-between mt-4'>
                                     <div>
                                         <h1  className='text-[14px] font-medium max-w-[150px] whitespace-nowrap overflow-hidden' >{product.title}</h1>

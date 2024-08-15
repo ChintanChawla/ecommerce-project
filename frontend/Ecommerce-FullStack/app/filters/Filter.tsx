@@ -171,66 +171,7 @@ const Filter = (props: Props) => {
                         </div>
                     </div>
                 </div>
-                <div className='border-b-[0.5px]'>
-                    <div className='flex items-center justify-between px-5 py-4 border-b-[0.5px] mb-5'>
-                        <h1 className='text-neutral-800'>Colors</h1>
-                    </div>
-                    <ul className='grid grid-cols-4 px-5 gap-5 mb-4'>
-                        {allHexValue.map((hexvalue, index) => (
-                            <li
-                            key={index}
-                            className={`w-[40px] h-[40px] rounded-2xl border-[0.5px] border-neutral-300 cursor-pointer ${props.selectedHexValues.includes(`#${hexvalue}`) ? "shadow-2xl opacity-25":""}`}
-                            style={{backgroundColor: `#${hexvalue}`}}
-                            onClick={() => toggleColor(`#${hexvalue}`)}
-                            >
 
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-                <div className='sizes'>
-                    <div className='flex items-center justify-between px-5 py-4 border-b-[0.5px] mb-5'>
-                        <h1 className='text-neutral-800'>sizes</h1>
-                    </div>
-                    <ul className='grid grid-cols-4 px-5 gap-5'>
-                        <li
-                        className={`border-[0.5px] rounded-lg text-center text-[14px] py-[2px] cursor-pointer ${props.selectedSize.includes('SM') ? 'bg-neutral-900 text-white':''}`}
-                        onClick={() => togglesize('SM')}
-                        >
-                            SM
-                        </li>
-                        <li
-                        className={`border-[0.5px] rounded-lg text-center text-[14px] py-[2px] cursor-pointer ${props.selectedSize.includes('MD') ? 'bg-neutral-900 text-white':''}`}
-                        onClick={() => togglesize('MD')}
-                        >
-                            MD
-                        </li>
-                        <li
-                        className={`border-[0.5px] rounded-lg text-center text-[14px] py-[2px] cursor-pointer ${props.selectedSize.includes('XL') ? 'bg-neutral-900 text-white':''}`}
-                        onClick={() => togglesize('XL')}
-                        >
-                            XL
-                        </li>
-                        <li
-                        className={`border-[0.5px] rounded-lg text-center text-[14px] py-[2px] cursor-pointer ${props.selectedSize.includes('2XL') ? 'bg-neutral-900 text-white':''}`}
-                        onClick={() => togglesize('2XL')}
-                        >
-                            2XL
-                        </li>
-                        <li
-                        className={`border-[0.5px] rounded-lg text-center text-[14px] py-[2px] cursor-pointer ${props.selectedSize.includes('3XL') ? 'bg-neutral-900 text-white':''}`}
-                        onClick={() => togglesize('3XL')}
-                        >
-                            3XL
-                        </li>
-                        <li
-                        className={`border-[0.5px] rounded-lg text-center text-[14px] py-[2px] cursor-pointer ${props.selectedSize.includes('4XL') ? 'bg-neutral-900 text-white':''}`}
-                        onClick={() => togglesize('2XL')}
-                        >
-                            4XL
-                        </li>
-                    </ul>
-                </div>
             </div>
         <div onClick={() => setShowFilter(!showFilter)} className='absolute md:hidden top-[20px] right-[-42px] rotate-90 bg-gray-100 px-2 rounded-t-sm cursor-pointer'>Filters</div>
         </div>

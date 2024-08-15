@@ -1,4 +1,4 @@
-const { ConsoleCommand } = require("lisk-commander");
+
 const pool = require("../config/db"); // Import the database connection
 
 // Create a new product

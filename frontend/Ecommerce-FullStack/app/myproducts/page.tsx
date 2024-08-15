@@ -1,64 +1,188 @@
-import React from 'react'
-import { getServerSession } from 'next-auth'
-import {options} from "@/app/api/auth/[...nextauth]/options"
-import Link from 'next/link'
-import prisma from "@/app/prismadb"
-import {AiTwotoneEdit} from "react-icons/ai"
-import Navbar from '../components/Navbar'
-import DeleteProduct from '../components/DeleteProduct'
+'use client'; // Indicates this is a client-side component
+import React, { useEffect, useState } from 'react';
+import { AiTwotoneEdit } from "react-icons/ai";
+import axios from 'axios';
+import Navbar from '../components/Navbar';
+import DeleteProduct from '../components/DeleteProduct';
+import api from '../utils/api';
 
+type Product = {
+  id: number;
+  name: string;
+  description: string;
+  price: string;
+  discount: string;
+  category: string;
+  seller_id: number;
+};
 
-type Props = {}
+const MyProductsPage = () => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null); // State to track the product being edited
 
-const page = async (props: Props) => {
-    const session = await getServerSession(options)
-
-    const allmyproduct = await prisma.product.findMany({
-        where:{
-            userId:session?.user.id
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const token = localStorage.getItem('jwt');
+        if (!token) {
+          return;
         }
-    })
-    if(allmyproduct.length === 0) {
-        return(
-            <div className='relative flex items-center justify-center'>
-                <img src="empty.png" alt="" />
-                <h1 className='absolute top-[80%] text-2xl text-purple-600'>Empty Cart</h1>
-            </div>
-        )
+
+        const response = await api.get('/products/listSellerProducts', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setProducts(response.data); // Assuming the API response directly provides the product array
+      } catch (err) {
+        console.error('Error fetching products:', err);
+        setError('Failed to load products');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  const handleEditClick = (product: Product) => {
+    setEditingProduct(product); // Set the product being edited
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    if (editingProduct) {
+      setEditingProduct({ ...editingProduct, [e.target.name]: e.target.value });
     }
+  };
+
+  const handleUpdateProduct = async () => {
+    if (!editingProduct) return;
+
+    try {
+      const token = localStorage.getItem('jwt');
+      const response = await api.put(`/products/edit/${editingProduct.id}`, editingProduct, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      // Handle successful update (e.g., show a message, refresh the product list)
+      console.log('Product updated successfully:', response.data);
+      setEditingProduct(null); // Reset editing state
+      // Optionally, refresh the product list to show updated data
+      const updatedProducts = products.map(product =>
+        product.id === editingProduct.id ? editingProduct : product
+      );
+      setProducts(updatedProducts);
+
+    } catch (err) {
+      console.error('Error updating product:', err);
+      setError('Failed to update product');
+    }
+  };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>{error}</div>;
+  }
+
+  if (products.length === 0) {
+    return (
+      <div className='relative flex items-center justify-center'>
+        <img src="empty.png" alt="Empty" />
+        <h1 className='absolute top-[80%] text-2xl text-purple-600'>No product added</h1>
+      </div>
+    );
+  }
+
   return (
     <div className='max-w-[1280px] mx-auto'>
-        <Navbar/>
-        <div>
-            {allmyproduct.map((product) => (
-                <div key={product.id} className='relative flex items-center justify-between w-8/12 px-6 mx-auto shadow-lg shadow-purple-100 p-5 rounded-lg mt-10'>
-                    <div>
-                        <h1 className='mb-3'>{product.title}</h1>
-                        <h1 className='mb-3'> Price: {product.price}</h1>
-                        <h1 className='mb-3'> Category: {product.category}</h1>
-                        <h1 className='mb-3'> Style: {product.style}</h1>
-                        <h1 className='mb-3'> Store: {product.store}</h1>
-                        <DeleteProduct productId={product.id} userId={product.userId}/>
-                    </div>
-                    <Link href={`/dashboard/${product.id}`}>
-                        <div>
-                            <img className='w-[200px] h-[200px] object-cover object-top' src={product.images.split(',')[0]} alt="" />
-                        </div>
-                    </Link>
-                    {
-                        session?.user.id === product.userId && (
-                            <Link className='absolute top-0 right-0' href={`/edit/${product.id}`}>
-                                <span className='absolute top-0 right-0 p-2 bg-green-600 rounded-full text-white cursor-pointer'>
-                                    <AiTwotoneEdit size = {24} />
-                                </span>
-                            </Link>
-                        )
-                    }
+      <Navbar />
+      <div>
+        {products.map((product) => (
+          <div key={product.id} className='relative flex items-center justify-between w-8/12 px-6 mx-auto shadow-lg shadow-purple-100 p-5 rounded-lg mt-10'>
+            <div>
+              {editingProduct?.id === product.id ? (
+                <div>
+                  <input
+                    type="text"
+                    name="name"
+                    value={editingProduct.name}
+                    onChange={handleInputChange}
+                    className='mb-3 p-2 border rounded'
+                    placeholder="Product Name"
+                  />
+                  <input
+                    type="text"
+                    name="price"
+                    value={editingProduct.price}
+                    onChange={handleInputChange}
+                    className='mb-3 p-2 border rounded'
+                    placeholder="Product Price"
+                  />
+                  <textarea
+                    name="description"
+                    value={editingProduct.description}
+                    onChange={handleInputChange}
+                    className='mb-3 p-2 border rounded'
+                    placeholder="Product Description"
+                  />
+                  <input
+                    type="text"
+                    name="category"
+                    value={editingProduct.category}
+                    onChange={handleInputChange}
+                    className='mb-3 p-2 border rounded'
+                    placeholder="Product Category"
+                  />
+                  <input
+                    type="text"
+                    name="discount"
+                    value={editingProduct.discount}
+                    onChange={handleInputChange}
+                    className='mb-3 p-2 border rounded'
+                    placeholder="Product Discount"
+                  />
+                  <button onClick={handleUpdateProduct} className='px-4 py-2 bg-green-600 text-white rounded'>
+                    Save
+                  </button>
+                  <button onClick={() => setEditingProduct(null)} className='ml-2 px-4 py-2 bg-red-600 text-white rounded'>
+                    Cancel
+                  </button>
                 </div>
-            ))}
-        </div>
+              ) : (
+                <div>
+                  <h1 className='mb-3'> Name:  {product.name}</h1>
+                  <h1 className='mb-3'> Price: {product.price}</h1>
+                  <h1 className='mb-3'> Category: {product.category}</h1>
+                  <h1 className='mb-3'> Discount: {product.discount}</h1>
+                  <DeleteProduct productId={product.id} userId={product.seller_id} />
+                </div>
+              )}
+            </div>
+            {/* <Link href={`/dashboard/${product.id}`}>
+              <div>
+                <img className='w-[200px] h-[200px] object-cover object-top' src={`/images/products/${product.id}.jpg`} alt={product.name} />
+              </div>
+            </Link> */}
+            {
+              true && (
+                <button onClick={() => handleEditClick(product)} className='absolute top-0 right-0 p-2 bg-green-600 rounded-full text-white cursor-pointer'>
+                  <AiTwotoneEdit size={18} />
+                </button>
+              )
+            }
+          </div>
+        ))}
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default page
+export default MyProductsPage;
