@@ -5,6 +5,7 @@ import axios from 'axios';
 import Navbar from '../components/Navbar';
 import DeleteProduct from '../components/DeleteProduct';
 import api from '../utils/api';
+import Link from 'next/link';
 
 type Product = {
   id: number;
@@ -96,7 +97,14 @@ const MyProductsPage = () => {
     return (
       <div className='relative flex items-center justify-center'>
         <img src="empty.png" alt="Empty" />
-        <h1 className='absolute top-[80%] text-2xl text-purple-600'>No product added</h1>
+        <div className='absolute top-[80%] flex flex-col items-center'>
+    <h1 className='text-2xl text-purple-600'>No product added</h1>
+    <Link href="/addproduct">
+      <button className='mt-4 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700'>
+        Add Product
+      </button>
+    </Link>
+  </div>
       </div>
     );
   }
@@ -115,7 +123,7 @@ const MyProductsPage = () => {
                     name="name"
                     value={editingProduct.name}
                     onChange={handleInputChange}
-                    className='mb-3 p-2 border rounded'
+                    className='mb-3 p-2 border rounded w-full'
                     placeholder="Product Name"
                   />
                   <input
@@ -123,14 +131,14 @@ const MyProductsPage = () => {
                     name="price"
                     value={editingProduct.price}
                     onChange={handleInputChange}
-                    className='mb-3 p-2 border rounded'
+                    className='mb-3 p-2 border rounded w-full'
                     placeholder="Product Price"
                   />
                   <textarea
                     name="description"
                     value={editingProduct.description}
                     onChange={handleInputChange}
-                    className='mb-3 p-2 border rounded'
+                    className='mb-3 p-2 border rounded w-full'
                     placeholder="Product Description"
                   />
                   <input
@@ -138,7 +146,7 @@ const MyProductsPage = () => {
                     name="category"
                     value={editingProduct.category}
                     onChange={handleInputChange}
-                    className='mb-3 p-2 border rounded'
+                    className='mb-3 p-2 border rounded w-full'
                     placeholder="Product Category"
                   />
                   <input
@@ -146,7 +154,7 @@ const MyProductsPage = () => {
                     name="discount"
                     value={editingProduct.discount}
                     onChange={handleInputChange}
-                    className='mb-3 p-2 border rounded'
+                    className='mb-3 p-2 border rounded w-full'
                     placeholder="Product Discount"
                   />
                   <button onClick={handleUpdateProduct} className='px-4 py-2 bg-green-600 text-white rounded'>
