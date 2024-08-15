@@ -1,3 +1,4 @@
+const { ConsoleCommand } = require("lisk-commander");
 const pool = require("../config/db"); // Import the database connection
 
 // Create a new product
@@ -5,6 +6,7 @@ exports.addInCart = async (req, res) => {
   const { product_id, quantity } = req.body;
   const user_id = req.user.id; // Assuming you're using JWT and the user's ID is in req.user
 
+  console.log("poara", req.body);
   try {
     const cart = await pool.query(
       "SELECT * FROM cart WHERE user_id = $1 AND product_id = $2",
@@ -20,6 +22,30 @@ exports.addInCart = async (req, res) => {
          WHERE id = $2 RETURNING *`,
         [updateQuantity, id]
       );
+      const product = await pool.query(
+        "SELECT price, discount FROM products WHERE id = $1",
+        [product_id]
+      );
+  
+      
+      const total_price = (product.rows[0].price * (1 - product.rows[0].discount / 100) * updatedCart.rows[0].quantity).toFixed(2);
+      console.log('test',product.rows[0])
+
+      const totalCartPriceResult = await pool.query(
+        `SELECT SUM(p.price * (1 - p.discount / 100) * ci.quantity) AS totalCartPrice
+         FROM cart ci
+         JOIN products p ON ci.product_id = p.id
+         WHERE ci.user_id = $1`,
+        [user_id]
+      );
+  
+      const totalCartPrice = parseFloat(totalCartPriceResult.rows[0].totalcartprice).toFixed(2);
+  
+      return res.json({
+        ...updatedCart.rows[0],
+        total_price,
+        totalCartPrice,
+      });
 
       return res.json(updatedCart.rows[0]);
     }
@@ -67,18 +93,36 @@ exports.removeFromCart = async (req, res) => {
 };
 
 exports.getCart = async (req, res) => {
-  const user_id = req.user.id; 
+  const user_id = req.user.id;
 
   try {
     const cartItems = await pool.query(
-      `SELECT ci.id, p.name, p.description, p.price, p.discount, ci.quantity
+      `SELECT ci.id,ci.product_id, p.name, p.description, p.price, p.discount, ci.quantity,
+              (p.price * (1 - p.discount / 100) * ci.quantity) AS total_price
        FROM cart ci
        JOIN products p ON ci.product_id = p.id
        WHERE ci.user_id = $1`,
       [user_id]
     );
 
-    res.json(cartItems.rows);
+    // Format the prices to 2 decimal places
+    const formattedCartItems = cartItems.rows.map((item) => ({
+      ...item,
+      price: parseFloat(item.price).toFixed(2),
+      discount: parseFloat(item.discount).toFixed(2),
+      total_price: parseFloat(item.total_price).toFixed(2),
+    }));
+
+    // Calculate the total cart price with proper floating-point addition
+    const totalCartPrice = formattedCartItems
+      .reduce((sum, item) => sum + parseFloat(item.total_price), 0)
+      .toFixed(2);
+
+    // Send the response
+    res.json({
+      cartItems: formattedCartItems,
+      totalCartPrice,
+    });
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server error");
