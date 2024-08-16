@@ -1,13 +1,13 @@
 # Ecommerce-project
 
 # Overview
-This Node.js backend provides a set of APIs that allow a frontend to interact with the e-commerce platform. This project uses Node.js v16.15.0 and PostgreSQL for the database.
+This project includes a Node.js backend and a Next.js 14 frontend, creating a full-stack e-commerce platform. The backend is built with Node.js v20.3.1 and uses PostgreSQL as the database. The frontend, located in the frontend folder, interacts with the backend through a set of APIs, enabling a seamless user experience on the platform
 
 
 # Getting Started
 To use this backend, you will need to install the following dependencies:
 
-Node.js v16.15.0
+Node.js v20.3.1
 PostgreSQL
 ```
 npm install
@@ -17,28 +17,41 @@ Once you have installed the dependencies, you can start the backend by running t
 ```
 node server.js
 ```
+For the frontend, navigate to the frontend directory and install the dependencies:
 
+bash
+```
+cd frontend
+npm install
+```
 This will start the backend on port 3002. You can then access the APIs by making HTTP requests to the backend.
 
 
 ### APIs
 POST /api/cart/addInCart: This API allows a user to add a product to their cart.
 
--DELETE /api/cart/removeFromCart: This API allows a user to remove a product from their cart.
+-  **DELETE /api/cart/removeFromCart:** This API allows a user to remove a product from their cart.
 
--GET /api/cart/getCart: This API returns the cart contents of the logged-in user.
+-  **GET /api/cart/getCart:** This API returns the cart contents of the logged-in user.
 
--PUT /api/products/edit/:id: This API allows a seller to edit their product. (e.g., PUT /api/products/edit/6)
+-   **POST /api/cart/addInCart:** This API allows a buyer to add a product in the cart.
 
--GET /api/products/search: This API allows users to search for products based on a search term. The search query should be passed as a query parameter. (e.g., GET /api/products/search?query=term)
+-  **PUT /api/products/edit/:id:** This API allows a seller to edit their product. (e.g., PUT /api/products/edit/6)
 
--DELETE /api/products/delete/:id: This API allows a seller to delete their product. (e.g., DELETE /api/products/delete/7)
+-  **GET /api/products/search:** This API allows users to search for products based on a search term. The search query should be passed as a query parameter
 
--POST /api/products/create: This API allows a buyer to create a new product.
+-  **GET /api/products/list:** This API lists all the products which are available for the users
 
--POST /api/auth/login: This API is used to log in an existing user. It returns a JWT token for authentication.
+- **GET /api/products/listSellerProducts:** This API lists products of a particular seller
 
--POST /api/auth/register: This API is used to register a new user.
+-  **DELETE /api/products/delete/:id:** This API allows a seller to delete their product. (e.g., DELETE /api/products/delete/7)
+
+-  **POST /api/products/create:** This API allows a buyer to create a new product.
+
+-  **POST /api/auth/login:** This API is used to log in an existing user. It returns a JWT token for authentication.
+
+-  **POST /api/auth/register:** This API is used to register a new user.
+
 
 ### Database setup
 This project uses a custom schema for organizing the database structure. To set up the database, follow the instructions below:
