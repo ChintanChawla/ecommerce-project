@@ -3,27 +3,28 @@ import React from 'react'
 import axios from 'axios'
 import { GoTrash } from 'react-icons/go'
 import { useRouter } from 'next/navigation'
+import api from '../utils/api'
 
 type Props = {
-    productId?:number
-    userId?:number
+    productId:number,
+    onDelete: (productId: number) => void
 }
 
-const DeleteProduct = ({productId,userId}: Props) => {
+const DeleteProduct = ({productId,onDelete }: Props) => {
     const router = useRouter()
 
+    const token = localStorage.getItem('jwt')
     const handleDelete = async () => {
         try{
-            await axios.delete('/api/addproduct',{
-                data:{
-                    productId:productId,
-                    userId:userId
-                }
+            await api.delete(`/products/delete/${productId}`,{
+                headers: {
+                    Authorization: `Bearer ${token}`, // Add the token in the Authorization header
+                },
             })
+            onDelete(productId)
             router.refresh()
-        }
-        catch(error){
-            console.log('Error in deleting product')
+        }catch(error){
+            console.log(error)
         }
     }
   return (

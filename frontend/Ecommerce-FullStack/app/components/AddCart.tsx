@@ -4,21 +4,21 @@ import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import {CiShoppingCart,CiCreditCard1} from "react-icons/ci"
-import { useAuth } from '../utils/auth'; 
+
 import api from '../utils/api';
+import { getUserFromToken } from '../utils/auth'
 type Props = {
     productId?:number
 }
 
 const AddCart = ({productId}: Props) => {
 
-    const user = useAuth(); 
+
+    const user = getUserFromToken();
     const token = localStorage.getItem('jwt')
 
 
-    const id = 1
     const router = useRouter()
-
     const handleCart =  async() => {
         if(user){
         try{
@@ -32,7 +32,6 @@ const AddCart = ({productId}: Props) => {
             })
             .then((response)=> {
                 router.push('/cart')
-                console.log(response.data)
             })
         }catch(error){
             console.log(error)

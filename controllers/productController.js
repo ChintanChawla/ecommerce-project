@@ -2,14 +2,14 @@ const pool = require("../config/db"); // Import the database connection
 
 // Create a new product
 exports.createProduct = async (req, res) => {
-  const { name, description, price, discount } = req.body;
+  const { name, description, price, discount, image_url, category } = req.body;
   const seller_id = req.user.id;
 
   try {
     const newProduct = await pool.query(
-      `INSERT INTO products (name, description, price, discount, seller_id)
-       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-      [name, description, price, discount || 0, seller_id]
+      `INSERT INTO products (name, description, price, discount,category, seller_id,image_url)
+       VALUES ($1, $2, $3, $4, $5,$6,$7) RETURNING *`,
+      [name, description, price, discount || 0, category, seller_id, image_url]
     );
 
     res.status(201).json(newProduct.rows[0]);
@@ -22,7 +22,7 @@ exports.createProduct = async (req, res) => {
 exports.listProducts = async (req, res) => {
   try {
     const products = await pool.query(
-      "SELECT id, name, description, price, discount, category FROM products"
+      "SELECT id, name, description, price, discount, category,image_url  FROM products"
     );
     res.json(products.rows);
   } catch (err) {
@@ -46,7 +46,7 @@ exports.getProduct = async (req, res) => {
 // Edit an existing product
 exports.editProduct = async (req, res) => {
   const { id } = req.params;
-  const { name, description, price, discount,category } = req.body;
+  const { name, description, price, discount, category, image_url } = req.body;
   const seller_id = req.user.id;
 
   try {
@@ -64,9 +64,9 @@ exports.editProduct = async (req, res) => {
 
     // Update the product
     const updatedProduct = await pool.query(
-      `UPDATE products SET name = $1, description = $2, price = $3, discount = $4, category = $5, updated_at = NOW()
-       WHERE id = $6 RETURNING *`,
-      [name, description, price, discount,category, id]
+      `UPDATE products SET name = $1, description = $2, price = $3, discount = $4, category = $5,image_url=$6, updated_at = NOW()
+       WHERE id = $7 RETURNING *`,
+      [name, description, price, discount, category, image_url, id]
     );
 
     res.json(updatedProduct.rows[0]);
@@ -107,7 +107,6 @@ exports.deleteProduct = async (req, res) => {
 
 exports.searchProducts = async (req, res) => {
   const query = req.body.query; // Get the search query from the request
-  console.log(req.body);
   if (!query) {
     return res.status(400).json({ msg: "Search query is required" });
   }
@@ -115,7 +114,7 @@ exports.searchProducts = async (req, res) => {
   try {
     // Perform a case-insensitive search on the name and description fields
     const products = await pool.query(
-      `SELECT id, name, description, price, discount, category, seller_id 
+      `SELECT id, name, description, price, discount, category, seller_id,image_url
        FROM products 
        WHERE name ILIKE $1 OR description ILIKE $1`,
       [`%${query}%`]
@@ -129,24 +128,18 @@ exports.searchProducts = async (req, res) => {
 };
 
 exports.listSellerProducts = async (req, res) => {
-  console.log('test rew',req.user)
   const seller_id = req.user.id;
   try {
     const products = await pool.query(
-      "SELECT id, name, description, price, discount,seller_id, category FROM products WHERE seller_id = $1",
+      "SELECT id, name, description, price, discount,seller_id,image_url, category FROM products WHERE seller_id = $1",
       [seller_id]
     );
-    console.log('test',products)
     res.json(products.rows);
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server error");
   }
 };
-
-
-
-
 
 exports.getProduct = async (req, res) => {
   const { id } = req.params;

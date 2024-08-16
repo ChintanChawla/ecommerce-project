@@ -5,19 +5,18 @@ import { CiShoppingCart } from "react-icons/ci";
 import { BsChevronCompactUp } from "react-icons/bs";
 import { BiSearch } from "react-icons/bi";
 import SearchBar from './SearchBar';
+import { getUserFromToken } from '../utils/auth';
 
 const Navbar = () => {
     const [showProfile, setShowProfile] = useState<boolean>(false);
     const [showNav, setShowNav] = useState<boolean>(false);
     const [user, setUser] = useState<any>(null); // State to store user data
-
-    useEffect(() => {
-        const token = localStorage.getItem('jwt'); // Get JWT from localStorage
-        if (token) {
+    const userToken = getUserFromToken();
+    useEffect(() => { // Get JWT from localStorage
+        if (userToken) {
             // Decode JWT or fetch user info from API
             // For simplicity, we'll just decode the JWT payload to get user info
-            const decodedToken = JSON.parse(atob(token.split('.')[1])); // Decode JWT payload
-            setUser(decodedToken.user);
+            setUser(userToken);
         }
     }, []);
 
@@ -56,7 +55,7 @@ const Navbar = () => {
                     <nav className='max-md:hidden'>
                         <ul className='flex items-center lg:space-x-10 space-x-7 opacity-70 text-[15px]'>
                             <li><a href="/" className='py-3 inline-block w-full'>Shop</a></li>
-                            <li><a href="filters" className='py-3 inline-block w-full'>Filters</a></li>
+                            {/* <li><a href="filters" className='py-3 inline-block w-full'>Filters</a></li> */}
                             {user && (
                                 <li><a href="myproducts" className='py-3 inline-block w-full'>My Products</a></li>
                             )}

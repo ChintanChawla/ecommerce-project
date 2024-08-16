@@ -1,11 +1,10 @@
 'use client'
 
-
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import DeleteCart from './DeleteCart'
-import Button from './Button'
 import api from '../utils/api'
+import { getUserFromToken } from '../utils/auth'
 
 type Props = {
     userId?: number
@@ -19,26 +18,25 @@ type CartProduct = {
     price: string;
     discount: string;
     quantity: number;
-    total_price: number
+    total_price: number;
+    image_url: string;
 }
 
 const AllCartProduct = (props: Props) => {
     const [cartProducts, setCartProducts] = useState<CartProduct[]>([])
     const [totalCartPrice, setTotalCartPrice] = useState<string>('')
-    const jwtToken = localStorage.getItem('jwt') 
+    const jwtToken = localStorage.getItem('jwt')
+    const user = getUserFromToken();
 
-    
     useEffect(() => {
         const fetchCartProducts = async () => {
-            // Retrieve JWT from localStorage
-
             if (!jwtToken) {
                 console.error('No JWT token found in localStorage')
                 return
             }
 
             try {
-                const response = await api.get('http://localhost:3002/api/cart/getCart', {
+                const response = await api.get('/cart/getCart', {
                     headers: {
                         Authorization: `Bearer ${jwtToken}`,
                     },
@@ -67,14 +65,18 @@ const AllCartProduct = (props: Props) => {
         );
     };
 
-    const updateCartProduct = async (productId: number, newQuantity: number,action: 'add' | 'remove') => {
+    const handleProductDelete = (productId: number) => {
+        setCartProducts((prevCartProducts) => prevCartProducts.filter(product => product.id !== productId));
+    };
+
+    const updateCartProduct = async (productId: number, newQuantity: number, action: 'add' | 'remove') => {
         if (!jwtToken) {
             console.error('No JWT token found in localStorage')
             return
         }
         const apiUrl = action === 'add'
-        ? 'http://localhost:3002/api/cart/addInCart'
-        : 'http://localhost:3002/api/cart/removeFromCart';
+            ? '/cart/addInCart'
+            : '/cart/removeFromCart';
 
         try {
             const response = await api.post(
@@ -116,16 +118,12 @@ const AllCartProduct = (props: Props) => {
     }
 
     const handleIncrement = (productId: number) => {
-        updateCartProduct(productId, 1,'add')
+        updateCartProduct(productId, 1, 'add')
     }
 
     const handleDecrement = (productId: number) => {
-
-            updateCartProduct(productId, 1,'remove')
-
+        updateCartProduct(productId, 1, 'remove')
     }
-
-
 
     if (cartProducts.length === 0) {
         return (
@@ -136,10 +134,8 @@ const AllCartProduct = (props: Props) => {
         )
     }
 
-
-
     return (
-<div className="mt-14">
+        <div className="mt-14">
             {cartProducts.map((cartProduct) => (
                 <div key={cartProduct.id} className="flex items-center justify-between w-8/12 mx-auto shadow-lg p-5 rounded-lg mt-6">
                     <div>
@@ -151,6 +147,7 @@ const AllCartProduct = (props: Props) => {
                             <button
                                 onClick={() => handleDecrement(cartProduct.product_id)}
                                 className="bg-gray-200 px-2 py-1 rounded"
+                                disabled={cartProduct.quantity === 1} // Disable button if quantity is 1
                             >
                                 -
                             </button>
@@ -163,19 +160,18 @@ const AllCartProduct = (props: Props) => {
                             </button>
                         </div>
                         <h2 className="mb-2 text-neutral-800">Total Price: {cartProduct.total_price}</h2>
-                        <DeleteCart productId={cartProduct.id} userId={props.userId} />
+                        <DeleteCart productId={cartProduct.product_id} quantity={cartProduct.quantity} onDelete={handleProductDelete} />
                     </div>
                     <Link href={`/dashboard/${cartProduct.id}`}>
-                        {/* <div>
-                            <img src={`path_to_image/${cartProduct.id}.png`} className='w-[200px] h-[200px] object-cover object-top' alt={cartProduct.name} />
-                        </div> */}
+                        <div>
+                            <img src={cartProduct.image_url} className='w-[200px] h-[200px] object-cover object-top' alt={cartProduct.name} />
+                        </div>
                     </Link>
                 </div>
             ))}
             <div className="w-8/12 mx-auto mt-8 p-5 rounded-lg shadow-lg bg-white">
                 <h2 className="text-2xl text-right">Total Cart Price: {totalCartPrice}</h2>
             </div>
-            <Button allIds={allIds} userId={props.userId} />
         </div>
     )
 }

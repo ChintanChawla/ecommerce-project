@@ -60,7 +60,6 @@ const Filter = (props: Props) => {
     const getAllColors = async () => {
         try{
             const response = await axios.get('/api/color');
-            // console.log("Colors:", response.data);
             return response.data
         }
         catch(error){

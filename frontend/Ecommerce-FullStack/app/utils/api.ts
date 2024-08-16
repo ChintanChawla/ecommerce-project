@@ -18,7 +18,7 @@ api.interceptors.response.use(
     (error) => {
         // Check if the error is 401 Unauthorized
         if (error.response && error.response.status === 401) {
-            console.log('here in the error')
+
             // Clear any stored tokens or user data
             localStorage.removeItem('token'); // Assuming you're storing the token in localStorage
             // Redirect to the sign-in page

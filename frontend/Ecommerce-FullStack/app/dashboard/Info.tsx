@@ -14,7 +14,7 @@ import AddCart from '../components/AddCart'
 
 interface Props{
     id:number
-    title:string
+    name:string
     description:string
     category:string
     style:string
@@ -23,13 +23,14 @@ interface Props{
     inventory:number
     color:string,
     price:number
+    discount:number
     images:string
     userId:number
     rating:number
     numbercomments:number
 }
 
-const Info:React.FC<Props> = ({title,description,id,price,color,size,userId,store,rating,numbercomments}) => {
+const Info:React.FC<Props> = ({name,description,id,price,discount,size,userId,store,rating,numbercomments}) => {
     // const colors = color.split(',')
     // const sizes = size.split(',')
     const {data:session} = useSession() 
@@ -48,17 +49,9 @@ const Info:React.FC<Props> = ({title,description,id,price,color,size,userId,stor
     }
   return (
     <div className='relative info'>
-        <h1 className='text-2xl font-semibold'>{title}</h1>
-        <h3 className='text-sm text-neutral-500'>{store}</h3>
-        <div className='flex items-center space-x-12 mt-4'>
-            <ReactStars value={rating} size={20}/>
-            <span className='flex items-start space-x-3'>
-                <FaRegCommentDots size={22} />
-                <span className='opacity-70 text-sm'>
-                    {numbercomments} comments
-                </span>
-            </span>
-        </div>
+        <h1 className='text-2xl font-semibold'>{name}</h1>
+        <h3 className='text-sm text-neutral-500'>Price: {price}</h3>
+        <h3 className='text-sm text-neutral-500'>Discount: {discount}</h3>
         {/* <h3 className='font-medium mt-8 mb-3 text-[14px]'>Select Size</h3>
         <ul className='flex space-x-5'>
             {sizes.map((size,index) => (

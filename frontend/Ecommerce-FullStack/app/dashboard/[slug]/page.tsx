@@ -26,7 +26,6 @@ export default async function Page({ params }: { params: { slug: string } }) {
 
     const { data } = await res.json();
     const product = data[0];
-    console.log('product is',product)
 
     // Fetch reviews from another API endpoint if necessary
 
@@ -41,8 +40,7 @@ export default async function Page({ params }: { params: { slug: string } }) {
         averageRating = totalRating / allReview.length;
     }
 
-    const urlString ='https://ipfs.volaverse.com/ipfs/bafybeigbzezzrzg4pzxsb6cqeelz6nrv4yts4fmekdrjrm2ypw56lfbiae/dress_1.png';
-
+    
     return (
         <div className='max-w-[1280px] mx-auto px-5 py-5'>
             <div className='font-semibold text-2xl mb-2'>
@@ -51,8 +49,8 @@ export default async function Page({ params }: { params: { slug: string } }) {
             <hr />
             {product && (
                 <div className='grid grid-cols-2 mt-10 gap-14'>
-                    {urlString && (
-                        <ImageGallery imageUrls={urlString} />
+                    {product.image_url && (
+                        <ImageGallery imageUrls={product.image_url} />
                     )}
                     <Info {...product} rating={averageRating} numbercomments={allReview.length} />
                 </div>
@@ -70,14 +68,7 @@ export default async function Page({ params }: { params: { slug: string } }) {
                                     <h3 className='font-medium'>Category</h3>
                                     <p className='text-sm text-purple-500'>{product.category}</p>
                                 </div>
-                                {/* <div>
-                                    <h3 className='font-medium'>Dress Style</h3>
-                                    <p className='text-sm text-purple-500'>{product.style}</p>
-                                </div>
-                                <div>
-                                    <h3 className='font-medium'>Store</h3>
-                                    <p className='text-sm text-purple-500'>{product.store}</p>
-                                </div> */}
+
                             </div>
                             <div style={{ borderColor: `${product.color?.split(',').pop()}` }} className={`leading-6 text-sm text-neutral-700 h-[200px] border-[1px] rounded-md p-4 overflow-scroll`} dangerouslySetInnerHTML={{ __html: product?.description }}></div>
                         </div>
@@ -88,24 +79,8 @@ export default async function Page({ params }: { params: { slug: string } }) {
                     </div>
                 )}
             </div>
-            {/* Commented out the review section for simplicity */}
-            {/* <div className='mt-20 mb-20'>
-                <div className='flex items-center space-x-5 mb-10'>
-                    <span className='w-[5px] h-[30px] bg-purple-600 rounded-full inline-block'></span>
-                    <span className='font-medium text-xl'>Comment & Review Section</span>
-                </div>
-                <div className='grid grid-cols-2'>
-                    <div>
-                        {allReview.map((review: any, index: number) => (
-                            <div key={review.id} className='mb-5'>
-                                <h1 className='mb-2 font-medium'>Comment: {index + 1}</h1>
-                                <ReviewSection {...review} />
-                            </div>
-                        ))}
-                    </div>
-                    <Review productId={product?.id} userId={currentUserId} />
-                </div>
-            </div> */}
+
+
         </div>
     )
 }

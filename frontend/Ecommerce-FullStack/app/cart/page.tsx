@@ -2,7 +2,7 @@
 import React from 'react'
 import Navbar from '../components/Navbar'
 import AllCartProduct from '../components/AllCartProduct'
-import { useAuth } from '../utils/auth'
+import { getUserFromToken } from '../utils/auth'
 
 
 type Props = {}
@@ -13,7 +13,8 @@ type User = {
 
 const Cart =  (props: Props) => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  const user = useAuth();
+
+  const user = getUserFromToken();
 
   if (!user) {
       // Handle the case where user is not logged in
@@ -22,7 +23,6 @@ const Cart =  (props: Props) => {
 
   const userId = user.id;
 
-  console.log('cart user',user)
   const id = userId
    // const session = await getServerSession(options)
   return (

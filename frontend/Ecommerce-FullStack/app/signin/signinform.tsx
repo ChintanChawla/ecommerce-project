@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+
 // import {signIn} from "next-auth/react" (if not using next-auth signIn function)
 
 type Props = {}
@@ -39,7 +40,16 @@ const Signinform = (props: Props) => {
                 const data = await response.json();
                 console.log('Login successful:', data.token);
                 localStorage.setItem('jwt',data.token)
-                router.push('/');
+                // eslint-disable-next-line react-hooks/rules-of-hooks
+                const decodedToken = JSON.parse(atob(data.token.split('.')[1])); // Decode JWT payload
+                setUser(decodedToken.user); // Update the user state in useAuth context
+
+                if (decodedToken.user.role === 'buyer') {
+                    router.push('/');
+                } else {
+                    router.push('/myproducts');
+                }
+                
             } else if (response.status === 400) {
                 setErrorMessage('Email or password is incorrect'); 
             } else {

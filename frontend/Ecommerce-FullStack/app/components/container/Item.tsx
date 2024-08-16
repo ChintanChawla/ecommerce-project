@@ -4,6 +4,8 @@ import { AiOutlineHeart } from "react-icons/ai";
 import Link from 'next/link';
 import axios from 'axios'; // Use axios or fetch to get data from the API
 import api from '@/app/utils/api';
+import { getUserFromToken } from '@/app/utils/auth';
+import router from 'next/router';
 
 type Product = {
   id: number;
@@ -13,15 +15,27 @@ type Product = {
   discount: string;
   category: string;
   seller_id: number;
+  image_url : string;
 };
-const urlString ='https://ipfs.volaverse.com/ipfs/bafybeigbzezzrzg4pzxsb6cqeelz6nrv4yts4fmekdrjrm2ypw56lfbiae/dress_1.png';
+
 
 const Item = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const user = getUserFromToken()
+
+
 
   useEffect(() => {
+    if(user){
+      if (user!.role === 'seller') {
+        window.location.href = '/myproducts';
+      } 
+    }
+    else{
+      window.location.href = '/signin';
+    }
     const fetchProducts = async () => {
       try {
         const response = await api.get('/products/list'); // Replace with your API endpoint
@@ -60,7 +74,7 @@ const Item = () => {
             <Link href={`/dashboard/${product.id}`}>
               <div className='relative rounded-lg'>
                 {/* Uncomment and use actual image source */}
-                <img src={urlString} className='w-[250px] h-[300px] object-cover object-top rounded-lg' alt={product.name} />
+                <img src={product.image_url} className='w-[250px] h-[300px] object-cover object-top rounded-lg' alt={product.name} />
               </div>
               <div className='flex items-center justify-between mt-4'>
                 <div>

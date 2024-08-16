@@ -6,6 +6,7 @@ import Navbar from '../components/Navbar';
 import DeleteProduct from '../components/DeleteProduct';
 import api from '../utils/api';
 import Link from 'next/link';
+import { getUserFromToken } from '../utils/auth';
 
 type Product = {
   id: number;
@@ -15,6 +16,7 @@ type Product = {
   discount: string;
   category: string;
   seller_id: number;
+  image_url:string
 };
 
 const MyProductsPage = () => {
@@ -22,6 +24,24 @@ const MyProductsPage = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null); // State to track the product being edited
+  const [isClient, setIsClient] = useState<boolean>(false);
+  useEffect(() => {
+    setIsClient(true); // Set to true when the component has mounted on the client
+  }, []);
+
+  useEffect(() => {
+    if (isClient) {
+      const user = getUserFromToken();
+      console.log(user);
+      if (user) {
+        if (user.role !== 'seller') {
+          window.location.href = '/';
+        }
+      } else {
+        window.location.href = '/signin';
+      }
+    }
+  }, [isClient]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -51,6 +71,9 @@ const MyProductsPage = () => {
 
   const handleEditClick = (product: Product) => {
     setEditingProduct(product); // Set the product being edited
+  };
+  const handleProductDelete = (productId: number) => {
+    setProducts((prevProducts) => prevProducts.filter(product => product.id !== productId));
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -157,6 +180,14 @@ const MyProductsPage = () => {
                     className='mb-3 p-2 border rounded w-full'
                     placeholder="Product Discount"
                   />
+                  <input
+                    type="text"
+                    name="image_url"
+                    value={editingProduct.image_url}
+                    onChange={handleInputChange}
+                    className='mb-3 p-2 border rounded w-full'
+                    placeholder="Image Url"
+                  />
                   <button onClick={handleUpdateProduct} className='px-4 py-2 bg-green-600 text-white rounded'>
                     Save
                   </button>
@@ -166,25 +197,30 @@ const MyProductsPage = () => {
                 </div>
               ) : (
                 <div>
+                  <div>
                   <h1 className='mb-3'> Name:  {product.name}</h1>
                   <h1 className='mb-3'> Price: {product.price}</h1>
                   <h1 className='mb-3'> Category: {product.category}</h1>
                   <h1 className='mb-3'> Discount: {product.discount}</h1>
-                  <DeleteProduct productId={product.id} userId={product.seller_id} />
+                  <DeleteProduct productId={product.id!}  onDelete={handleProductDelete}/>
+                  </div>
+
                 </div>
+
+                
               )}
             </div>
-            {/* <Link href={`/dashboard/${product.id}`}>
-              <div>
-                <img className='w-[200px] h-[200px] object-cover object-top' src={`/images/products/${product.id}.jpg`} alt={product.name} />
-              </div>
-            </Link> */}
+            {editingProduct?.id != product.id ? (
+                  <div>
+                    <img className='w-[200px] h-[200px] object-cover object-top' src={product.image_url} alt={product.name} />
+                  </div>
+            ):(<div></div>)}
             {
-              true && (
+
                 <button onClick={() => handleEditClick(product)} className='absolute top-0 right-0 p-2 bg-green-600 rounded-full text-white cursor-pointer'>
                   <AiTwotoneEdit size={18} />
                 </button>
-              )
+
             }
           </div>
         ))}

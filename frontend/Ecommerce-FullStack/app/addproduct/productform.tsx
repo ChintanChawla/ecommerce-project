@@ -1,22 +1,20 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
 import { useRouter } from 'next/navigation'
 import Navbar from '../components/Navbar'
 import api from '../utils/api'
 
-type Props = {}
-
-const Productform = (props: Props) => {
+const Productform = () => {
     const router = useRouter()
     const [token, setToken] = useState<string | null>(null)
+    const [error, setError] = useState<string>('')
 
     useEffect(() => {
         const jwtToken = localStorage.getItem('jwt')
         if (jwtToken) {
             setToken(jwtToken)
-            const decodedToken = JSON.parse(atob(jwtToken.split('.')[1])); // Decode JWT payload
+            const decodedToken = JSON.parse(atob(jwtToken.split('.')[1]))
             if (decodedToken.user.role !== 'seller') {
                 router.push('/')
             }
@@ -30,6 +28,8 @@ const Productform = (props: Props) => {
         description: '',
         price: 0,
         discount: 0,
+        image_url: '',
+        category: '', 
     })
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -48,12 +48,23 @@ const Productform = (props: Props) => {
         })
     }
 
+    const validateForm = () => {
+        if (!formData.name || !formData.description || !formData.image_url || !formData.category || formData.price <= 0 || formData.discount < 0 || formData.discount > 100) {
+            setError('Please fill in all fields correctly. Note: Discount must be between 0 and 100')
+            return false
+        }
+        setError('')
+        return true
+    }
+
     const postData = async () => {
+        if (!validateForm()) return
+
         try {
             if (token) {
                 const response = await api.post('/products/create', formData, {
                     headers: {
-                        Authorization: `Bearer ${token}`, // Add the token in the Authorization header
+                        Authorization: `Bearer ${token}`,
                     },
                 })
                 router.push('/')
@@ -68,9 +79,7 @@ const Productform = (props: Props) => {
 
     return (
         <div className='px-5 max-w-[1280px] mx-auto mb-10'>
-            <div>
-                <Navbar />
-            </div>
+            <Navbar />
             <h1 className='text-3xl font-semibold py-6'>Add your Product</h1>
             <div className='text-black mt-4'>
                 <div className='grid md:grid-cols-2 grid-cols-1 gap-5'>
@@ -104,7 +113,26 @@ const Productform = (props: Props) => {
                             onChange={handlePriceChange}
                         />
                     </div>
-                    
+                    <div>
+                        <label htmlFor="image_url" className='font-medium'>Image URL</label>
+                        <input 
+                            type="text"
+                            className='w-full h-[50px] border-[1px] rounded-lg focus:border-pink-500 px-3 focus:border-2 outline-none'
+                            name='image_url'
+                            value={formData.image_url}
+                            onChange={handleChange}
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="category" className='font-medium'>Category</label>
+                        <input 
+                            type="text"
+                            className='w-full h-[50px] border-[1px] rounded-lg focus:border-pink-500 px-3 focus:border-2 outline-none'
+                            name='category'
+                            value={formData.category}
+                            onChange={handleChange}
+                        />
+                    </div>
                     <div>
                         <label htmlFor="description" className='font-medium'>Description</label>
                         <textarea 
@@ -115,6 +143,7 @@ const Productform = (props: Props) => {
                         />
                     </div>
                 </div>
+                {error && <p className="text-red-500 mt-4">{error}</p>}
                 <button onClick={postData} className='text-white mt-10 border-[1px] bg-purple-500 rounded-lg px-5 p-2'>Submit</button>
             </div>
         </div>

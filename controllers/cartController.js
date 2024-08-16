@@ -1,4 +1,3 @@
-
 const pool = require("../config/db"); // Import the database connection
 
 // Create a new product
@@ -51,14 +50,15 @@ exports.addInCart = async (req, res) => {
       [user_id]
     );
 
-    const totalCartPrice = parseFloat(totalCartPriceResult.rows[0].totalcartprice).toFixed(2);
+    const totalCartPrice = parseFloat(
+      totalCartPriceResult.rows[0].totalcartprice
+    ).toFixed(2);
 
     return res.json({
       ...updatedCart.rows[0],
       total_price,
       totalCartPrice,
     });
-
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server error");
@@ -83,13 +83,11 @@ exports.removeFromCart = async (req, res) => {
     let isRemoved = false;
     let updatedCart = cartItem.rows[0];
     let total_price = "0.00";
-    console.log('updateQuantity',updateQuantity)
     if (updateQuantity <= 0) {
       await pool.query("DELETE FROM cart WHERE id = $1", [id]);
       isRemoved = true;
-      return res.json({quantity:0})
+      return res.json({ quantity: 0 });
     } else {
-      console.log('in else')
       updatedCart = await pool.query(
         `UPDATE cart SET quantity = $1, updated_at = NOW()
          WHERE id = $2 RETURNING *`,
@@ -107,7 +105,6 @@ exports.removeFromCart = async (req, res) => {
         updateQuantity
       ).toFixed(2);
     }
-    console.log('after condition')
 
     const totalCartPriceResult = await pool.query(
       `SELECT SUM(p.price * (1 - p.discount / 100) * ci.quantity) AS totalCartPrice
@@ -117,9 +114,10 @@ exports.removeFromCart = async (req, res) => {
       [user_id]
     );
 
-    const totalCartPrice = parseFloat(totalCartPriceResult.rows[0].totalcartprice).toFixed(2);
-    updatedCart=updatedCart.rows[0]
-    
+    const totalCartPrice = parseFloat(
+      totalCartPriceResult.rows[0].totalcartprice
+    ).toFixed(2);
+    updatedCart = updatedCart.rows[0];
 
     return res.json({
       id: updatedCart.id,
@@ -131,7 +129,6 @@ exports.removeFromCart = async (req, res) => {
       total_price,
       totalCartPrice,
     });
-
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server error");
@@ -142,7 +139,7 @@ exports.getCart = async (req, res) => {
 
   try {
     const cartItems = await pool.query(
-      `SELECT ci.id,ci.product_id, p.name, p.description, p.price, p.discount, ci.quantity,
+      `SELECT ci.id,ci.product_id, p.name, p.description,p.image_url, p.price, p.discount, ci.quantity,
               (p.price * (1 - p.discount / 100) * ci.quantity) AS total_price
        FROM cart ci
        JOIN products p ON ci.product_id = p.id
