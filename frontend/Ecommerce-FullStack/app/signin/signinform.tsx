@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import api from '../utils/api';
 
 // import {signIn} from "next-auth/react" (if not using next-auth signIn function)
 
@@ -25,20 +26,16 @@ const Signinform = (props: Props) => {
             return;
         }
         try {
-            const response = await fetch('http://localhost:3002/api/auth/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    email: user.email,
-                    password: user.password,
-                }),
+            const response = await api.post('/auth/login', {
+                email: user.email,
+                password: user.password,
             });
+            console.log(response)
+            console.log(response.status)
 
-            if (response.ok) {
-                const data = await response.json();
-                console.log('Login successful:', data.token);
+            if (response) {
+                const data =  response.data;
+                console.log('Login successful:', data);
                 localStorage.setItem('jwt',data.token)
                 // eslint-disable-next-line react-hooks/rules-of-hooks
                 const decodedToken = JSON.parse(atob(data.token.split('.')[1])); // Decode JWT payload
@@ -50,10 +47,9 @@ const Signinform = (props: Props) => {
                     router.push('/myproducts');
                 }
                 
-            } else if (response.status === 400) {
-                setErrorMessage('Email or password is incorrect'); 
-            } else {
-                console.error('Login failed:', response.statusText);
+            } 
+             else {
+                
                 setErrorMessage('An unexpected error occurred. Please try again.'); 
             }
         } catch (error) {

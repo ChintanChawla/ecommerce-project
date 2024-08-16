@@ -8,7 +8,7 @@ exports.authenticate = (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, "project"); // Replace with your secret
+    const decoded = jwt.verify(token, process.env.JWT_PASS); // Replace with your secret
     req.user = decoded.user; // Decoded user object contains id, username, and role
 
     next();

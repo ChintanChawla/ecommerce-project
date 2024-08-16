@@ -40,7 +40,7 @@ exports.registerUser = async (req, res) => {
     // Sign the token
     jwt.sign(
       payload,
-      "project", // Replace with your own secret
+      process.env.JWT_PASS,
       { expiresIn: "1h" },
       (err, token) => {
         if (err) throw err;
@@ -84,10 +84,15 @@ exports.login = async (req, res) => {
     };
 
     // Sign the token
-    jwt.sign(payload, "project", { expiresIn: "1h" }, (err, token) => {
-      if (err) throw err;
-      res.json({ token });
-    });
+    jwt.sign(
+      payload,
+      process.env.JWT_PASS,
+      { expiresIn: "1h" },
+      (err, token) => {
+        if (err) throw err;
+        res.json({ token });
+      }
+    );
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server error");

@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import axios from "axios"
 import { isValidEmail } from '../utils/validation'
+import api from '../utils/api'
 
 type Props = {}
 
@@ -42,7 +43,7 @@ const SignForm = (props: Props) => {
             setError('Please enter a valid email id')
             return;
         }
-        axios.post('http://localhost:3002/api/auth/register', data)
+        api.post('/auth/register', data)
             .then((response) => {
                 if (response.status === 200) { // Check if the response status is OK
                     const { token } = response.data; // Destructure the token from the response data

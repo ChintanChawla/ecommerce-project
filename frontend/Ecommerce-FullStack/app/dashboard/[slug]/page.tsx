@@ -3,6 +3,7 @@ import ImageGallery from '../ImageGallery'
 import Info from '../Info'
 import Review from '@/app/components/Review'
 import ReviewSection from '../ReviewSection'
+import api from '@/app/utils/api'
 
 type Props = {}
 
@@ -11,21 +12,20 @@ export default async function Page({ params }: { params: { slug: string } }) {
 
     console.log(productId)
     
-    // Fetch product details from the API
-    const res = await fetch(`http://localhost:3002/api/products/getProduct/${productId}`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    });
+let product;
+    try {
 
-    if (!res.ok) {
-        // Handle the error appropriately
+        const response = await api.get(`/products/getProduct/${productId}`, {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+    
+         product = response.data.data[0]; // 
+    } catch (error) {
+        console.error('Error fetching product details:', error);
         return <div>Error fetching product details</div>;
     }
-
-    const { data } = await res.json();
-    const product = data[0];
 
     // Fetch reviews from another API endpoint if necessary
 
