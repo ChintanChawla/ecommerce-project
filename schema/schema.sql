@@ -87,7 +87,8 @@ CREATE TABLE public.products (
     seller_id integer NOT NULL,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    category character varying(255)
+    category character varying(255),
+    image_url character varying(255)
 );
 
 
