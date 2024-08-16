@@ -30,8 +30,7 @@ const Signinform = (props: Props) => {
                 email: user.email,
                 password: user.password,
             });
-            console.log(response)
-            console.log(response.status)
+
 
             if (response) {
                 const data =  response.data;
